@@ -61,7 +61,7 @@ modules:
     sources: &mangohud-client-sources
       - type: git
         url: https://github.com/17314642/MangoHud-2.git
-        commit: 5bc06a5df17eac00c5367a74a804470a2c52cf42
+        commit: d0c00c653c13c0d6e16201194fc0042bb9003594
     modules:
       - name: glew
         build-options: *x86_64-build-options
