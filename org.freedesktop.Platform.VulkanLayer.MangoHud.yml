@@ -8,6 +8,9 @@ sdk-extensions:
   - org.freedesktop.Sdk.Compat.i386
   - org.freedesktop.Sdk.Extension.toolchain-i386
 build-options:
+  build-args:
+    -
+      --share=network
   prefix: /usr/lib/extensions/vulkan/MangoHud
   prepend-path: /usr/lib/extensions/vulkan/MangoHud/bin
   prepend-pkg-config-path: /usr/lib/extensions/vulkan/MangoHud/share/pkgconfig
@@ -43,32 +46,22 @@ cleanup:
   - /lib/*/*.a
   - /lib/*/*.la
 modules:
-  - name: MangoHud
+  - name: mangohud-client-64bit
     build-options:
       arch:
         x86_64: *x86_64-build-options
       config-opts:
-        - -Dmangoapp=true
+        - -Dmangoapp=false
     buildsystem: meson
+    subdir: mangohud-client
     config-opts: &mangohud-config-opts
-      - -Dwith_xnvctrl=enabled
       - -Dappend_libdir_mangohud=false
       - -Dmangoplot=disabled
-    sources: &mangohud-sources
-      - type: archive
-        url: https://github.com/flightlessmango/MangoHud/releases/download/v0.8.1/MangoHud-v0.8.1-Source.tar.xz
-        sha256: 4c8d8098f5deff7737978d792eef909b7469933f456a47132dccc06804825482
-        x-checker-data:
-          type: json
-          url: https://api.github.com/repos/flightlessmango/MangoHud/releases
-          url-query: |
-            map(select(.tag_name | startswith("v"))) | first |
-            .assets | map((select(.name | endswith("Source.tar.xz")))) | first | .browser_download_url
-          version-query: |
-            map(select(.tag_name | startswith("v"))) | first |
-            .tag_name | sub("^[vV]"; "")
-      - type: patch
-        path: patches/0001-wayland-dlopen-correct-library.patch
+      - -Dwith_xnvctrl=disabled
+    sources: &mangohud-client-sources
+      - type: git
+        url: https://github.com/17314642/MangoHud-2.git
+        commit: 5bc06a5df17eac00c5367a74a804470a2c52cf42
     modules:
       - name: glew
         build-options: *x86_64-build-options
@@ -107,44 +100,12 @@ modules:
             tag: '3.4'
             commit: 7b6aead9fb88b3623e3b3725ebb42670cbe4c579
 
-      - name: nlohmann-json
-        build-options: *x86_64-build-options
-        buildsystem: cmake-ninja
-        config-opts:
-          - -DJSON_BuildTests:BOOL=OFF
-        sources:
-          - type: git
-            url: https://github.com/nlohmann/json.git
-            tag: v3.11.2
-            commit: bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d
-
-      - name: libNVCtrl
-        build-options: *x86_64-build-options
-        no-autogen: true
-        no-make-install: true
-        build-commands: &libNVCtrl-build-commands
-          - mkdir -p ${FLATPAK_LIBDIR}
-          - cp -a libXNVCtrl.so* ${FLATPAK_LIBDIR}
-          - install -D *.h -t ${FLATPAK_DEST}/include/NVCtrl
-        subdir: src/libXNVCtrl
-        sources: &libNVCtrl-sources
-          - type: archive
-            archive-type: tar
-            url: https://api.github.com/repos/NVIDIA/nvidia-settings/tarball/refs/tags/470.63.01
-            sha256: 0ede63515851d85ac0d1ed5f00e355f539968e6d1fd226120a27b2c66c3575de
-          - type: patch
-            path: patches/libxnvctrl_so_0.patch
-            x-checker-data:
-              type: json
-              url: https://api.github.com/repos/NVIDIA/nvidia-settings/tags
-              url-query: .[0].tarball_url
-              version-query: .[0].name
-
-  - name: MangoHud-32bit
+  - name: mangohud-client-32bit
     build-options: *i386-build-options
     buildsystem: meson
+    subdir: mangohud-client
     config-opts: *mangohud-config-opts
-    sources: *mangohud-sources
+    sources: *mangohud-client-sources
     modules:
       - name: glew-32bit
         build-options:
@@ -171,13 +132,13 @@ modules:
         config-opts: *glfw-config-opts
         sources: *glfw-sources
 
-      - name: libNVCtrl-32bit
-        build-options: *i386-build-options
-        no-autogen: true
-        no-make-install: true
-        build-commands: *libNVCtrl-build-commands
-        subdir: src/libXNVCtrl
-        sources: *libNVCtrl-sources
+  - name: mangohud-server-64bit
+    build-options:
+      arch:
+        x86_64: *x86_64-build-options
+    buildsystem: meson
+    subdir: mangohud-server
+    sources: *mangohud-client-sources
 
   - name: metadata
     buildsystem: simple
