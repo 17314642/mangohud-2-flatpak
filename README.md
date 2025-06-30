@@ -1,10 +1,18 @@
 # MangoHUD 
 
 ## Building
-1. `apt install flatpak-builder appstream`
-2. `flatpak install org.freedesktop.Sdk.Compat.i386/x86_64/24.08`
-3. `flatpak install org.freedesktop.Sdk.Extension.toolchain-i386/x86_64/24.08`
-4. `flatpak-builder --user --install --force-clean build org.freedesktop.Platform.VulkanLayer.MangoHud.yml`
+1. ```
+   apt install flatpak-builder appstream
+   ```
+2. ```
+   flatpak install org.freedesktop.Sdk.Compat.i386/x86_64/24.08
+   ```
+3. ```
+   flatpak install org.freedesktop.Sdk.Extension.toolchain-i386/x86_64/24.08
+   ```
+4. ```
+   flatpak-builder --user --install --force-clean build org.freedesktop.Platform.VulkanLayer.MangoHud.yml
+   ```
 
 ## Configuration
 
